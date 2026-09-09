@@ -1,0 +1,325 @@
+---
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
+/**
+ * Hero Interactive Preview — 경량 PixiJS 게임 프리뷰
+ * 방 배경 + 기본 가구 + 네모 캐릭터 (드래그 인터랙션)
+ * UI 없음, 순수 게임 화면만
+ */
+---
+
+<div class="hero-preview" id="hero-preview">
+  <div class="preview-canvas" id="preview-canvas"></div>
+  <div class="preview-hint" id="preview-hint">네모를 클릭해서 잡아보세요!</div>
+</div>
+
+<style>
+  .hero-preview {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    aspect-ratio: 480 / 440;
+    border-radius: 18px;
+    overflow: hidden;
+    border: 2px solid var(--border);
+    box-shadow: var(--shadow-lg);
+    background: var(--bg-primary);
+  }
+
+  .preview-canvas {
+    width: 100%;
+    height: 100%;
+  }
+
+  .preview-canvas canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+  }
+
+  .preview-hint {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: var(--radius-pill);
+    padding: 6px 16px;
+    font-size: var(--font-caption);
+    font-weight: var(--weight-semi);
+    color: var(--text-secondary);
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.5s var(--ease-smooth);
+  }
+
+  .preview-hint.hidden {
+    opacity: 0;
+  }
+
+  @media (max-width: 767px) {
+    .hero-preview {
+      max-width: 320px;
+      margin: 0 auto;
+    }
+  }
+</style>
+
+<script>
+  async function initPreview() {
+    const container = document.getElementById('preview-canvas');
+    const hint = document.getElementById('preview-hint');
+    if (!container) return;
+
+    const PIXI = await import('pixi.js');
+
+    const app = new PIXI.Application();
+    await app.init({
+      width: 480,
+      height: 440,
+      backgroundAlpha: 0,
+      antialias: true,
+    });
+    container.appendChild(app.canvas);
+
+    // --- 방 배경 ---
+    const roomTex = await PIXI.Assets.load(`${BASE}/sprites/room_lv4.png`);
+    const room = new PIXI.Sprite(roomTex);
+    room.anchor.set(0.5, 0.5);
+    room.x = 240;
+    room.y = 220;
+    room.scale.set(0.54);
+    app.stage.addChild(room);
+
+    // --- 가구 배치 ---
+    const furnitureItems = [
+      { path: `${BASE}/sprites/furniture/lamp_star.png`, x: 155, y: 200 },
+      { path: `${BASE}/sprites/furniture/cushion_pink.png`, x: 310, y: 260 },
+      { path: `${BASE}/sprites/furniture/book.png`, x: 200, y: 270 },
+    ];
+
+    const furnitureContainer = new PIXI.Container();
+    furnitureContainer.sortableChildren = true;
+    app.stage.addChild(furnitureContainer);
+
+    for (const f of furnitureItems) {
+      try {
+        const tex = await PIXI.Assets.load(f.path);
+        const sprite = new PIXI.Sprite(tex);
+        sprite.anchor.set(0.5);
+        sprite.x = f.x;
+        sprite.y = f.y;
+        sprite.scale.set(0.35);
+        sprite.zIndex = Math.floor(f.y);
+        furnitureContainer.addChild(sprite);
+      } catch (e) {
+        // 가구 로드 실패해도 진행
+      }
+    }
+
+    // --- 네모 캐릭터 ---
+    const idleTex = await PIXI.Assets.load(`${BASE}/sprites/char_idle.png`);
+    const happyTex = await PIXI.Assets.load(`${BASE}/sprites/char_happy.png`);
+
+    const nemo = new PIXI.Sprite(idleTex);
+    nemo.anchor.set(0.5);
+    nemo.x = 240;
+    nemo.y = 235;
+    const baseScale = 56 / Math.max(idleTex.width, idleTex.height);
+    nemo.scale.set(baseScale);
+    nemo.eventMode = 'static';
+    nemo.cursor = 'pointer';
+    app.stage.addChild(nemo);
+
+    // --- 말풍선 ---
+    const bubbleContainer = new PIXI.Container();
+    bubbleContainer.alpha = 0;
+    app.stage.addChild(bubbleContainer);
+
+    const bubbleBg = new PIXI.Graphics();
+    bubbleContainer.addChild(bubbleBg);
+
+    const bubbleText = new PIXI.Text({
+      text: '',
+      style: new PIXI.TextStyle({
+        fontFamily: 'A2Z, Mona12, Pretendard, sans-serif',
+        fontSize: 13,
+        fontWeight: '700',
+        fill: '#5C4033',
+        align: 'center',
+      }),
+    });
+    bubbleText.anchor.set(0.5);
+    bubbleContainer.addChild(bubbleText);
+
+    const bubbleMessages = [
+      '헤헤~ 안녕!',
+      '잡았다~!',
+      '으앙 놔줘~!',
+      '같이 놀자~!',
+      '간지러워~!',
+      '위이잉~!',
+    ];
+
+    let bubbleTimer = 0;
+    function showBubble(msg: string, duration = 2000) {
+      bubbleText.text = msg;
+      bubbleContainer.alpha = 1;
+      bubbleTimer = duration;
+    }
+
+    // --- 드래그 상태 ---
+    let isDragging = false;
+    let dragOffsetX = 0;
+    let dragOffsetY = 0;
+    let prevDragX = 0;
+    let targetRotation = 0;
+    let baseY = 235;
+    let hasInteracted = false;
+
+    // 물리
+    const GRAVITY = 0.5;
+    const BOUNCE_DAMPING = 0.4;
+    const MAX_ROTATION = 0.3;
+    const ROTATION_LERP = 0.15;
+    let isFalling = false;
+    let fallVelocityY = 0;
+    let bounceCount = 0;
+    const floorY = 235;
+
+    // --- pointerdown ---
+    nemo.on('pointerdown', (e: any) => {
+      e.stopPropagation();
+      if (isFalling) return;
+
+      isDragging = true;
+      dragOffsetX = e.global.x - nemo.x;
+      dragOffsetY = e.global.y - nemo.y;
+      prevDragX = e.global.x;
+      baseY = nemo.y;
+
+      nemo.texture = happyTex;
+      nemo.scale.set(baseScale * 1.04);
+      nemo.rotation = 0;
+      targetRotation = 0;
+
+      showBubble(bubbleMessages[Math.floor(Math.random() * bubbleMessages.length)]);
+
+      if (!hasInteracted) {
+        hasInteracted = true;
+        hint?.classList.add('hidden');
+      }
+    });
+
+    // --- globalpointermove ---
+    app.stage.eventMode = 'static';
+    app.stage.hitArea = app.screen;
+    app.stage.on('globalpointermove', (e: any) => {
+      if (!isDragging) return;
+
+      const newX = e.global.x - dragOffsetX;
+      const newY = e.global.y - dragOffsetY;
+
+      nemo.x = Math.max(60, Math.min(420, newX));
+      nemo.y = Math.max(60, Math.min(380, newY));
+
+      const deltaX = e.global.x - prevDragX;
+      prevDragX = e.global.x;
+      targetRotation = Math.max(-MAX_ROTATION, Math.min(MAX_ROTATION, deltaX * 0.05));
+    });
+
+    // --- pointerup ---
+    app.stage.on('pointerup', () => {
+      if (!isDragging) return;
+      isDragging = false;
+
+      // 떨어지기 시작
+      isFalling = true;
+      fallVelocityY = 0;
+      bounceCount = 0;
+    });
+
+    app.stage.on('pointerupoutside', () => {
+      if (!isDragging) return;
+      isDragging = false;
+      isFalling = true;
+      fallVelocityY = 0;
+      bounceCount = 0;
+    });
+
+    // --- 메인 루프 ---
+    let t = 0;
+    app.ticker.add((ticker) => {
+      t += ticker.deltaTime * 0.03;
+      const dt = ticker.deltaTime;
+
+      // 말풍선 업데이트
+      if (bubbleTimer > 0) {
+        bubbleTimer -= ticker.deltaMS;
+        if (bubbleTimer <= 0) {
+          bubbleContainer.alpha = 0;
+        }
+      }
+      if (bubbleContainer.alpha > 0) {
+        bubbleText.x = nemo.x;
+        bubbleText.y = nemo.y - 45;
+        bubbleBg.clear();
+        const bw = bubbleText.width + 20;
+        const bh = bubbleText.height + 10;
+        bubbleBg.roundRect(bubbleText.x - bw / 2, bubbleText.y - bh / 2, bw, bh, 10);
+        bubbleBg.fill({ color: 0xffffff, alpha: 0.85 });
+      }
+
+      if (isDragging) {
+        // 잡힌 상태 — 회전 보간 + 미세 흔들림
+        nemo.rotation += (targetRotation - nemo.rotation) * ROTATION_LERP;
+        targetRotation *= 0.9;
+        nemo.y += Math.sin(Date.now() * 0.01) * 0.3;
+
+      } else if (isFalling) {
+        // 떨어지는 상태 — 중력 + 바운스
+        fallVelocityY += GRAVITY * dt;
+        nemo.y += fallVelocityY * dt;
+        nemo.rotation += (0 - nemo.rotation) * 0.1;
+
+        if (nemo.y >= floorY) {
+          nemo.y = floorY;
+          fallVelocityY *= -BOUNCE_DAMPING;
+          bounceCount++;
+
+          // 찌그러짐 효과
+          nemo.scale.set(baseScale * 1.15, baseScale * 0.85);
+          setTimeout(() => {
+            if (isFalling) nemo.scale.set(baseScale);
+          }, 100);
+
+          if (Math.abs(fallVelocityY) < 0.5 || bounceCount >= 3) {
+            isFalling = false;
+            nemo.y = floorY;
+            baseY = floorY;
+            nemo.texture = idleTex;
+            nemo.scale.set(baseScale);
+            nemo.rotation = 0;
+          }
+        }
+
+      } else {
+        // idle — 보빙 애니메이션
+        nemo.y = baseY + Math.sin(t) * 3;
+      }
+    });
+
+    // 3초 후 힌트 자동 숨김
+    setTimeout(() => {
+      if (!hasInteracted) {
+        // 힌트 유지
+      }
+    }, 5000);
+  }
+
+  // DOM 로드 후 초기화
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPreview);
+  } else {
+    initPreview();
+  }
+</script>

@@ -1,0 +1,106 @@
+---
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-nemo">
+      <img src={`${BASE}/images/footer/ft_nemo.png`} alt="네모" class="footer-nemo-img" />
+      <span class="nemo-bubble footer-bubble">또 놀러 와~!</span>
+    </div>
+
+    <span class="footer-brand">NemoMate</span>
+
+    <div class="footer-links">
+      <a href="#" class="footer-link" aria-label="Instagram">Instagram</a>
+      <span class="footer-divider">·</span>
+      <a href="#" class="footer-link" aria-label="Twitter">Twitter(X)</a>
+      <span class="footer-divider">·</span>
+      <a href="https://github.com" class="footer-link" aria-label="GitHub">GitHub</a>
+    </div>
+
+    <p class="footer-copyright">&copy; 2026 NemoMate. All rights reserved.</p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background: var(--accent);
+    padding: 56px 0 40px;
+    text-align: center;
+  }
+
+  .footer-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .footer-nemo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .footer-nemo-img {
+    width: 48px;
+    height: auto;
+    filter: brightness(1.3);
+    animation: nemo-idle 3s ease-in-out infinite;
+  }
+
+  .footer .nemo-bubble {
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--text-inverse);
+    font-size: var(--font-caption);
+  }
+
+  .footer-brand {
+    font-size: var(--font-button);
+    font-weight: var(--weight-bold);
+    color: var(--text-inverse);
+  }
+
+  .footer-links {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .footer-link {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: var(--font-label);
+    transition: color var(--dur-fast);
+    position: relative;
+  }
+
+  .footer-link:hover {
+    color: var(--text-inverse);
+  }
+
+  .footer-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--text-inverse);
+    transform: scaleX(0);
+    transition: transform var(--dur-normal) var(--ease-smooth);
+  }
+
+  .footer-link:hover::after {
+    transform: scaleX(1);
+  }
+
+  .footer-divider {
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  .footer-copyright {
+    font-size: var(--font-caption);
+    color: rgba(255, 255, 255, 0.6);
+  }
+</style>

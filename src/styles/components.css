@@ -1,0 +1,276 @@
+/* ==============================
+   NemoMate Landing — Component System
+   poc/src/styles/components.css 에서 이식
+   게임 디자인 시스템과 동일한 룩앤필 유지
+   ============================== */
+
+/* --- 버튼: 베이스 --- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gap-inline);
+  border: none;
+  cursor: pointer;
+  font-weight: var(--weight-bold);
+  line-height: 1;
+  transition: background var(--ease-normal), transform var(--ease-fast);
+  white-space: nowrap;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* --- 버튼: 크기 --- */
+.btn-sm {
+  font-size: var(--font-label);
+  padding: var(--pad-compact) var(--pad-default);
+  border-radius: var(--radius-button);
+}
+
+.btn-md {
+  font-size: var(--font-label);
+  padding: var(--pad-compact) var(--pad-loose);
+  border-radius: var(--radius-button);
+}
+
+.btn-lg {
+  font-size: var(--font-button);
+  padding: var(--space-xl) var(--space-3xl);
+  border-radius: var(--radius-panel);
+}
+
+/* --- 버튼: Primary (브랜드 액센트) --- */
+.btn-primary {
+  background: var(--accent);
+  color: var(--text-inverse);
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+.btn-primary:active:not(:disabled) {
+  background: var(--accent-hover);
+  transform: scale(0.97);
+}
+
+/* --- 버튼: Ghost (보더 아웃라인) --- */
+.btn-ghost {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+.btn-ghost:hover:not(:disabled) {
+  background: var(--border-hover);
+}
+.btn-ghost:active:not(:disabled) {
+  background: var(--border-subtle);
+  transform: scale(0.97);
+}
+
+/* ==============================
+   Pill 버튼 (ctrl.xyz 스타일)
+   ============================== */
+.btn-pill {
+  border-radius: var(--radius-pill);
+  position: relative;
+  overflow: hidden;
+  z-index: 0;
+  transition: transform var(--dur-smooth) var(--ease-smooth),
+              color var(--dur-slow);
+}
+
+.btn-pill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--brown-900);
+  border-radius: inherit;
+  transform: translateY(100%);
+  transition: transform var(--dur-smooth) var(--ease-smooth);
+  z-index: -1;
+}
+
+.btn-pill:hover::after {
+  transform: translateY(0);
+}
+
+.btn-pill:hover {
+  color: var(--text-inverse);
+}
+
+/* ==============================
+   눌림 버튼 (Duolingo 스타일)
+   ============================== */
+.btn-press {
+  border-radius: 18px;
+  box-shadow: var(--shadow-press);
+  transform: translateY(0);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.btn-press:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--brown-700);
+}
+
+.btn-press-accent {
+  background: var(--accent);
+  color: var(--text-inverse);
+  box-shadow: var(--shadow-press-accent);
+}
+
+.btn-press-accent:active {
+  box-shadow: 0 1px 0 var(--pink-600);
+}
+
+/* ==============================
+   눌림 버튼 크기 프리셋
+   ============================== */
+.btn-press.btn-lg,
+.btn-press-accent.btn-lg {
+  font-size: var(--font-button);
+  font-weight: var(--weight-bold);
+  padding: 16px 32px;
+}
+
+.btn-press.btn-md,
+.btn-press-accent.btn-md {
+  font-size: var(--font-label);
+  font-weight: var(--weight-bold);
+  padding: 14px 28px;
+}
+
+/* --- 카드 --- */
+.card {
+  background: var(--bg-elevated);
+  border: 2px solid var(--border);
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 24px;
+  box-shadow: var(--shadow-press);
+  transition: transform var(--ease-fast), box-shadow var(--ease-fast);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.card:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--brown-700);
+}
+
+.card-selected {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.card-elevated {
+  background: var(--bg-elevated);
+  border: none;
+  box-shadow: var(--shadow-md);
+}
+.card-elevated:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+/* --- 태그/뱃지 --- */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--font-caption);
+  font-weight: var(--weight-semi);
+  padding: 8px 20px;
+  border-radius: var(--radius-pill);
+  cursor: default;
+  transition: opacity var(--ease-fast);
+}
+.tag:hover { opacity: 0.85; }
+
+.tag-brand         { background: var(--accent); color: var(--text-inverse); }
+.tag-brand-subtle  { background: var(--accent-bg); color: var(--accent); }
+.tag-neutral       { background: var(--bg-tertiary); color: var(--text-primary); }
+.tag-neutral-subtle{ background: var(--bg-secondary); color: var(--text-secondary); }
+
+/* Tag Toggle */
+.tag-toggle {
+  cursor: pointer;
+  border: 2px solid var(--border);
+  background: none;
+  color: var(--text-secondary);
+}
+.tag-toggle:hover {
+  background: var(--accent-bg);
+}
+.tag-toggle-on {
+  background: var(--accent);
+  color: var(--text-inverse);
+  border-color: var(--accent-hover);
+  font-weight: var(--weight-bold);
+}
+
+/* --- 네모 말풍선 (게임 PIXI 말풍선과 동일한 룩) --- */
+.nemo-bubble {
+  background: rgba(255, 255, 255, 0.85);
+  border: none;
+  border-radius: var(--radius-panel);
+  padding: var(--pad-compact) var(--pad-loose);
+  font-size: var(--font-label);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+  text-align: center;
+  display: inline-block;
+}
+
+/* --- 갤러리 캐러셀 --- */
+.gallery-track {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding: var(--gap-group) 0;
+}
+
+.gallery-item {
+  flex: 0 0 auto;
+  width: 280px;
+  aspect-ratio: 9/16;
+  border-radius: 18px;
+  border: 2px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  scroll-snap-align: center;
+  transition: transform var(--dur-smooth) var(--ease-smooth),
+              box-shadow var(--dur-smooth) var(--ease-smooth);
+}
+
+.gallery-item:hover {
+  transform: scale(1.04);
+  box-shadow: var(--shadow-lg);
+}
+
+.gallery-track::-webkit-scrollbar { height: 4px; }
+.gallery-track::-webkit-scrollbar-thumb {
+  background: var(--brown-300);
+  border-radius: 2px;
+}
+
+/* --- 모바일 안내 --- */
+.mobile-notice {
+  display: none;
+  text-align: center;
+  padding: var(--space-5xl);
+  background: var(--bg-elevated);
+  border: 2px solid var(--border);
+  border-radius: 18px;
+  color: var(--text-primary);
+  font-size: var(--font-body);
+  line-height: 1.6;
+}

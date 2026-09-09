@@ -1,0 +1,181 @@
+---
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<section class="section download-section" id="download">
+  <div class="container">
+    <div class="download-card reveal">
+      <div class="download-nemo">
+        <img src={`${BASE}/images/download/dl_nemo.png`} alt="네모" class="download-nemo-img" />
+        <div class="nemo-bubble">빨리 만나자~! 기다리고 있을게~</div>
+      </div>
+
+      <h2 class="section-title">네모를 데려가세요</h2>
+      <p class="download-subtitle">지금 바로 얼리 액세스 버전을 다운로드하세요</p>
+
+      <div class="download-buttons" id="download-buttons">
+        <a href="https://github.com/jiyuyeon/nemomate-site/releases/download/v0.1.0/NemoMate_0.1.0_aarch64.dmg" class="btn btn-press btn-md btn-mac">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a9.96 9.96 0 0 1 6.29 2.23A10 10 0 0 1 12 22 10 10 0 0 1 5.71 4.23 9.96 9.96 0 0 1 12 2z"/></svg>
+          macOS 다운로드 (.dmg)
+        </a>
+        <span class="btn btn-press btn-md btn-win btn-disabled" aria-disabled="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="8"/><rect x="3" y="13" width="8" height="8"/><rect x="13" y="13" width="8" height="8"/></svg>
+          Windows 준비 중
+        </span>
+      </div>
+
+      <div class="mobile-notice" id="mobile-notice">
+        네모메이트는 데스크톱 앱이에요!<br/>PC에서 다시 방문해주세요 :)
+      </div>
+
+      <div class="download-meta">
+        <span class="version">얼리 액세스 v0.1.0 · 2026.09</span>
+        <span class="requirements">macOS 12+ · 애플 실리콘(M1 이상) · 300MB 이상 여유 공간</span>
+      </div>
+
+      <div class="download-notice">
+        <p>아직 다듬는 중인 얼리 액세스 버전이에요! 버그를 발견하면 알려주세요 :)</p>
+        <p class="data-notice">
+          <b>처음 열 때만</b> 앱을 우클릭해서 <b>열기</b>를 눌러주세요.<br/>
+          더블클릭하면 "확인되지 않은 개발자" 경고로 안 열려요. 두 번째부터는 그냥 열려요!
+        </p>
+        <p class="data-notice">
+          게임 데이터는 계정에 저장돼요. 로그인하면 어느 컴퓨터에서든 이어서 할 수 있어요.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .download-section {
+    background: var(--accent-bg);
+  }
+
+  .download-card {
+    max-width: 640px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .download-nemo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .download-nemo-img {
+    width: 100px;
+    height: auto;
+    animation: nemo-idle 3s ease-in-out infinite;
+  }
+
+  .download-subtitle {
+    font-size: var(--font-body);
+    color: var(--text-secondary);
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .download-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .download-buttons .btn {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    border: 2px solid var(--border);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .download-buttons .btn.btn-primary-os {
+    background: var(--accent);
+    color: var(--text-inverse);
+    border-color: var(--accent-hover);
+    box-shadow: var(--shadow-press-accent);
+  }
+
+  .download-buttons .btn.btn-primary-os:active {
+    box-shadow: 0 1px 0 var(--pink-600);
+  }
+
+  .download-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 24px;
+  }
+
+  .version {
+    font-size: var(--font-caption);
+    color: var(--text-secondary);
+    font-family: monospace;
+  }
+
+  .requirements {
+    font-size: var(--font-caption);
+    color: var(--text-secondary);
+  }
+
+  .download-notice {
+    background: var(--bg-elevated);
+    border: 2px solid var(--border);
+    border-radius: 18px;
+    padding: var(--space-3xl) var(--space-5xl);
+    font-size: var(--font-label);
+    color: var(--text-primary);
+    box-shadow: var(--shadow-sm);
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
+  .download-notice p {
+    font-size: var(--font-label);
+    margin-bottom: var(--space-lg);
+  }
+
+  .download-notice p:last-child {
+    margin-bottom: 0;
+  }
+
+  .data-notice {
+    color: var(--text-secondary);
+    font-size: var(--font-caption) !important;
+  }
+
+  @media (max-width: 767px) {
+    .download-buttons {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+  /* 아직 준비 안 된 버튼 — 눌리지 않는다는 걸 보이게 */
+  .btn-disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+</style>
+
+<script>
+  // 지금 받을 수 있는 건 macOS뿐이라 macOS 버튼만 강조한다.
+  // (예전엔 윈도우 사용자에게 윈도우 버튼을 강조했는데, 아직 윈도우 빌드가 없다)
+  document.querySelector('.btn-mac')?.classList.add('btn-primary-os');
+
+  // 모바일 감지
+  const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
+  if (isMobile) {
+    const buttons = document.getElementById('download-buttons');
+    const notice = document.getElementById('mobile-notice');
+    if (buttons) buttons.style.display = 'none';
+    if (notice) notice.style.display = 'block';
+  }
+</script>

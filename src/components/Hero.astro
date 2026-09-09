@@ -1,0 +1,166 @@
+---
+import HeroPreview from './HeroPreview.astro';
+---
+
+<section class="hero" id="hero">
+  <div class="hero-inner container">
+    <div class="hero-text">
+      <h1 class="hero-title">
+        <span class="hero-line">당신의 바탕화면 위에,</span>
+        <span class="hero-line">네모난 작은 친구</span>
+      </h1>
+      <p class="hero-subtitle">
+        네모와 함께 방을 꾸미고, 대화하고, 놀아주세요
+      </p>
+      <div class="hero-cta">
+        <a href="#download" class="btn btn-press-accent btn-lg">무료 다운로드</a>
+        <a href="#gallery" class="btn btn-press btn-lg hero-btn-secondary">미리보기</a>
+      </div>
+    </div>
+
+    <div class="hero-visual reveal-right">
+      <HeroPreview />
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    background: var(--bg-primary);
+    padding-top: 160px;
+    padding-bottom: 120px;
+  }
+
+  .hero-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 48px;
+  }
+
+  /* --- Text column (왼쪽 정렬) --- */
+  .hero-text {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hero-title {
+    /* 72px에서는 "당신의 바탕화면 위에,"가 한 줄에 안 들어가 "바탕화 / 면"처럼
+       어색하게 잘렸다. 한 단계 줄여 각 줄이 통째로 들어가게 한다. */
+    font-size: 52px;
+    font-weight: var(--weight-bold);
+    line-height: 1.1;
+    color: var(--brown-900);
+    margin-bottom: 24px;
+  }
+
+  .hero-line {
+    display: block;
+    /* 줄바꿈은 마크업의 두 줄로만. 폭이 모자라 줄 안에서 또 잘리면
+       "바탕화 / 면"처럼 단어가 쪼개져 읽기 나빠진다. */
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateY(40px);
+  }
+
+  .hero-line:nth-child(1) {
+    animation: hero-line-in var(--dur-reveal) var(--ease-smooth) 0.1s forwards;
+  }
+
+  .hero-line:nth-child(2) {
+    animation: hero-line-in var(--dur-reveal) var(--ease-smooth) 0.25s forwards;
+  }
+
+  @keyframes hero-line-in {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .hero-subtitle {
+    font-size: var(--font-body);
+    color: var(--text-secondary);
+    line-height: 1.6;
+    max-width: 400px;
+    margin-bottom: 40px;
+  }
+
+  .hero-cta {
+    display: flex;
+    gap: 16px;
+  }
+
+  .hero-btn-secondary {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    border: 2px solid var(--border);
+    box-shadow: 0 4px 0 var(--brown-400);
+  }
+
+  .hero-btn-secondary:active {
+    box-shadow: 0 1px 0 var(--brown-400);
+  }
+
+  /* --- Visual column (우측 프리뷰) --- */
+  .hero-visual {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* --- Tablet --- */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .hero {
+      padding-top: 130px;
+      padding-bottom: 100px;
+    }
+
+    .hero-title {
+      font-size: 52px;
+    }
+  }
+
+  /* --- Mobile --- */
+  @media (max-width: 767px) {
+    .hero {
+      padding-top: 100px;
+      padding-bottom: 80px;
+    }
+
+    .hero-inner {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+
+    .hero-title {
+      font-size: 36px;
+    }
+
+    .hero-visual {
+      order: -1;
+      margin-bottom: 16px;
+    }
+
+    .hero-subtitle {
+      max-width: 100%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero-cta {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .hero-cta .btn {
+      width: 100%;
+      max-width: 300px;
+      text-align: center;
+      justify-content: center;
+    }
+  }
+</style>

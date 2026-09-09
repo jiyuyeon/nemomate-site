@@ -1,0 +1,230 @@
+---
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
+const navItems = [
+  { label: '소개', href: '#about' },
+  { label: '기능', href: '#features' },
+  { label: '미리보기', href: '#gallery' },
+  { label: '다운로드', href: '#download' },
+];
+---
+
+<header class="header" id="header">
+  <div class="header-inner container">
+    <a href="#" class="logo">
+      <img src={`${BASE}/sprites/char_idle.png`} alt="네모" class="logo-icon" />
+      <span class="logo-text">NemoMate</span>
+    </a>
+
+    <nav class="nav-pill" id="nav-pill">
+      {navItems.map(item => (
+        <a href={item.href} class="nav-link">{item.label}</a>
+      ))}
+    </nav>
+
+    <a href="#download" class="btn btn-pill btn-sm header-cta">다운로드</a>
+
+    <button class="hamburger" id="hamburger" aria-label="메뉴 열기">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+
+  <!-- 모바일 드롭다운 -->
+  <nav class="nav-mobile" id="nav-mobile">
+    {navItems.map(item => (
+      <a href={item.href} class="nav-mobile-link">{item.label}</a>
+    ))}
+    <a href="#download" class="nav-mobile-link nav-mobile-cta">다운로드</a>
+  </nav>
+</header>
+
+<style>
+  .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--header-height);
+    background: rgba(253, 250, 239, 0.85);
+    backdrop-filter: blur(12px);
+    box-shadow: var(--shadow-xs);
+    z-index: 100;
+    transition: transform var(--dur-smooth) var(--ease-smooth);
+  }
+
+  .header.header-hidden {
+    transform: translateY(-100%);
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+  }
+
+  /* --- Logo --- */
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .logo-icon {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+  }
+
+  .logo-text {
+    font-size: var(--font-button);
+    font-weight: var(--weight-bold);
+    color: var(--brown-900);
+  }
+
+  /* --- Pill Navigation (중앙) --- */
+  .nav-pill {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-pill);
+    padding: 4px;
+  }
+
+  .nav-link {
+    font-size: var(--font-label);
+    font-weight: var(--weight-semi);
+    color: var(--text-primary);
+    padding: 10px 20px;
+    border-radius: 24px;
+    transition: background var(--dur-normal) ease, color var(--dur-normal) ease;
+  }
+
+  .nav-link:hover {
+    background: var(--bg-tertiary);
+  }
+
+  .nav-link.active {
+    background: var(--bg-elevated);
+    box-shadow: var(--shadow-xs);
+  }
+
+  /* --- Header CTA (우측) --- */
+  .header-cta {
+    font-size: var(--font-label);
+    font-weight: var(--weight-bold);
+    padding: 10px 24px;
+    background: var(--brown-900);
+    color: var(--text-inverse);
+    border: none;
+    flex-shrink: 0;
+  }
+
+  /* --- Hamburger --- */
+  .hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    padding: 8px;
+  }
+
+  .hamburger span {
+    width: 24px;
+    height: 2px;
+    background: var(--brown-700);
+    border-radius: 2px;
+    transition: transform 0.3s, opacity 0.3s;
+  }
+
+  .hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+  .hamburger.open span:nth-child(2) { opacity: 0; }
+  .hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+  /* --- Mobile nav dropdown --- */
+  .nav-mobile {
+    display: none;
+    position: absolute;
+    top: var(--header-height);
+    left: 0;
+    right: 0;
+    background: rgba(253, 250, 239, 0.98);
+    backdrop-filter: blur(12px);
+    flex-direction: column;
+    padding: 12px 16px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .nav-mobile.open {
+    display: flex;
+  }
+
+  .nav-mobile-link {
+    font-size: var(--font-body);
+    font-weight: var(--weight-semi);
+    color: var(--text-primary);
+    padding: 14px 20px;
+    border-radius: var(--radius-pill);
+    transition: background var(--dur-fast) ease;
+  }
+
+  .nav-mobile-link:hover {
+    background: var(--bg-secondary);
+  }
+
+  .nav-mobile-cta {
+    background: var(--accent);
+    color: var(--text-inverse);
+    text-align: center;
+    margin-top: 8px;
+  }
+
+  /* --- Responsive --- */
+  @media (max-width: 767px) {
+    .nav-pill,
+    .header-cta { display: none; }
+    .hamburger { display: flex; }
+  }
+
+  @media (min-width: 768px) and (max-width: 899px) {
+    .nav-link { padding: 8px 14px; font-size: 13px; }
+    .header-cta { padding: 8px 18px; }
+  }
+</style>
+
+<script>
+  const hamburger = document.getElementById('hamburger');
+  const navMobile = document.getElementById('nav-mobile');
+
+  hamburger?.addEventListener('click', () => {
+    hamburger.classList.toggle('open');
+    navMobile?.classList.toggle('open');
+  });
+
+  // 모바일 링크 클릭 시 메뉴 닫기
+  navMobile?.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      hamburger?.classList.remove('open');
+      navMobile?.classList.remove('open');
+    });
+  });
+
+  // IntersectionObserver — 활성 섹션 감지
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-link');
+
+  const sectionObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navLinks.forEach(link => {
+          link.classList.toggle('active', link.getAttribute('href') === `#${id}`);
+        });
+      }
+    });
+  }, { threshold: 0.3, rootMargin: '-72px 0px -50% 0px' });
+
+  sections.forEach(s => sectionObserver.observe(s));
+</script>

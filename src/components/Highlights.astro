@@ -1,0 +1,123 @@
+---
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
+const highlights = [
+  {
+    title: '네모야, 오늘 어땠어?',
+    body: '네모는 당신의 말에 귀 기울이는 작은 친구예요. 기쁜 일도, 힘든 일도 함께 나눠요.',
+    bubble: '힘들었구나~ 내가 옆에 있을게~',
+    image: `${BASE}/images/highlights/hl_chat.png`,
+    imageAlt: '네모와 채팅하는 화면',
+  },
+  {
+    title: '네모의 방을 꾸며주세요',
+    body: '가챠로 가구를 모으고, 드래그해서 원하는 곳에 배치하세요. 레벨이 오르면 방도 넓어져요!',
+    bubble: '우와~ 예쁘다~!',
+    image: `${BASE}/images/highlights/hl_room.png`,
+    imageAlt: '방 꾸미기 모드 화면',
+  },
+  {
+    title: '네모와 달려요!',
+    body: '러너 게임으로 코인을 모으고, 새로운 가구를 뽑아보세요.',
+    bubble: '슝~! 더 빨리~!',
+    image: `${BASE}/images/highlights/hl_runner.png`,
+    imageAlt: '러너 게임 플레이 화면',
+  },
+  {
+    title: '두근두근 가챠!',
+    body: '코인으로 가구를 뽑아보세요. 어떤 가구가 나올지는 열어봐야 알 수 있어요!',
+    bubble: '와아~ 뭐가 나올까~!',
+    image: `${BASE}/images/highlights/hl_gacha.png`,
+    imageAlt: '가챠 뽑기 화면',
+  },
+];
+---
+
+<section class="section" id="features">
+  <div class="container">
+    <h2 class="section-title reveal">이런 걸 할 수 있어요</h2>
+    <p class="section-subtitle reveal">네모와 함께하는 매일이 조금 더 따뜻해져요</p>
+
+    <div class="highlights">
+      {highlights.map((h, i) => (
+        <div class="highlight-row">
+          <div class={`highlight-image ${i % 2 === 0 ? 'reveal-left' : 'reveal-right'}`}>
+            <img src={h.image} alt={h.imageAlt} class="highlight-img" />
+          </div>
+          <div class={`highlight-text ${i % 2 === 0 ? 'reveal-right' : 'reveal-left'}`} style={i % 2 === 1 ? 'order: -1;' : ''}>
+            <h3>{h.title}</h3>
+            <p>{h.body}</p>
+            {h.bubble && <div class="nemo-bubble">{h.bubble}</div>}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .highlights {
+    display: flex;
+    flex-direction: column;
+    gap: 100px;
+  }
+
+  .highlight-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: center;
+  }
+
+  .highlight-img {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    border-radius: 18px;
+    border: 2px solid var(--border);
+    overflow: hidden;
+    transition: transform var(--dur-smooth) var(--ease-smooth),
+                box-shadow var(--dur-smooth) var(--ease-smooth);
+  }
+
+  .highlight-img:hover {
+    transform: scale(1.02);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .highlight-text {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .highlight-text h3 {
+    font-size: var(--font-title);
+    line-height: 1.3;
+  }
+
+  .highlight-text p {
+    font-size: var(--font-body);
+    line-height: 1.7;
+    color: var(--text-primary);
+  }
+
+  .highlight-text .nemo-bubble {
+    align-self: flex-start;
+    margin-top: 4px;
+  }
+
+  @media (max-width: 767px) {
+    .highlights {
+      gap: 64px;
+    }
+
+    .highlight-row {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    /* 모바일: 이미지 항상 위 */
+    .highlight-image { order: -1; }
+    .highlight-text { order: 0 !important; }
+  }
+</style>

@@ -1,0 +1,96 @@
+---
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
+const features = [
+  {
+    icon: `${BASE}/images/features/icon_desktop.png`,
+    title: '데스크톱 친구',
+    desc: '네모가 항상 책상 위에서 기다리고 있어요',
+  },
+  {
+    icon: `${BASE}/images/features/icon_room.png`,
+    title: '나만의 방 꾸미기',
+    desc: '가구를 모아 네모의 방을 예쁘게 꾸며주세요',
+  },
+  {
+    icon: `${BASE}/images/features/icon_game.png`,
+    title: '미니게임',
+    desc: '네모와 함께 달리고, 코인을 모아요',
+  },
+  {
+    icon: `${BASE}/images/features/icon_chat.png`,
+    title: 'AI 대화',
+    desc: '네모는 진짜로 대답해요. 오늘 하루를 들려주세요',
+    // 얼리 액세스에서는 잠겨 있다 (호출당 비용이 들어 정식 버전에서 연다)
+    soon: true,
+  },
+];
+---
+
+<section class="section section-alt" id="about">
+  <div class="container">
+    <h2 class="section-title reveal">네모메이트는?</h2>
+    <p class="section-subtitle reveal">바탕화면 위에 사는 네모난 양모인형, 네모를 키워보세요</p>
+
+    <div class="features-grid reveal-stagger">
+      {features.map(f => (
+        <div class="card card-feature reveal">
+          <img src={f.icon} alt={f.title} />
+          <h3>{f.title}{f.soon && <span class="feature-soon">준비 중</span>}</h3>
+          <p>{f.desc}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+
+  /* 아직 못 쓰는 기능 표시 — 있는 것처럼 보이면 안 된다 */
+  .feature-soon {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 2px 8px;
+    border-radius: 40px;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    font-size: var(--font-caption);
+    vertical-align: middle;
+  }
+
+  .card-feature {
+    padding: 32px 24px;
+    text-align: center;
+    border-radius: 18px;
+    cursor: default;
+  }
+
+  .card-feature img {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 16px;
+    object-fit: contain;
+  }
+
+  .card-feature h3 {
+    font-size: var(--font-button);
+    margin-bottom: 8px;
+  }
+
+  .card-feature p {
+    font-size: var(--font-label);
+    color: var(--text-secondary);
+  }
+
+  @media (max-width: 1023px) {
+    .features-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 767px) {
+    .features-grid { grid-template-columns: 1fr; max-width: 360px; margin: 0 auto; }
+  }
+</style>

@@ -1,0 +1,68 @@
+/* ==============================
+   NemoMate Landing — Semantic Tokens
+   primitives.css 위에 웹 전용 토큰 확장
+   리뉴얼: ctrl.xyz 대형 타이포 + 시원한 여백
+   ============================== */
+@import './primitives.css';
+
+:root {
+  /* ============================
+     웹 전용 Semantic Tokens
+     ============================ */
+
+  /* --- 폰트 패밀리 (웹: A2Z 우선) --- */
+  --font-family: "A2Z", "Mona12", "Pretendard", system-ui, -apple-system, sans-serif;
+
+  /* --- 폰트 크기: ctrl.xyz 스타일 대형 타이포 --- */
+  --font-hero: 96px;
+  --font-display: 48px;
+  --font-title: 32px;
+  --font-button: 20px;
+  --font-ui: 18px;
+  --font-body: 18px;
+  --font-label: 14px;
+  --font-caption: 12px;
+
+  /* --- 레이아웃: 시원한 여백 --- */
+  --section-gap: 120px;
+  --content-max: 1100px;
+  --content-narrow: 720px;
+  --header-height: 72px;
+  --pad-desktop: 40px;
+  --pad-tablet: 24px;
+  --pad-mobile: 16px;
+
+  /* --- Pill 버튼 전용 --- */
+  --radius-pill: 40px;
+
+  /* --- 눌림 버튼 (Duolingo) --- */
+  --shadow-press: 0 4px 0 var(--brown-700);
+  --shadow-press-accent: 0 4px 0 var(--pink-600);
+
+  /* --- 통합 이징 (ctrl.xyz) --- */
+  --ease-smooth: cubic-bezier(0.165, 0.84, 0.44, 1);
+  --dur-smooth: 0.5s;
+  --dur-reveal: 0.8s;
+
+  /* --- Stagger 딜레이 --- */
+  --stagger-delay: 0.15s;
+}
+
+/* --- 태블릿 타이포 조정 --- */
+@media (min-width: 768px) and (max-width: 1023px) {
+  :root {
+    --font-hero: 64px;
+    --font-display: 40px;
+    --section-gap: 96px;
+  }
+}
+
+/* --- 모바일 타이포 조정 --- */
+@media (max-width: 767px) {
+  :root {
+    --font-hero: 44px;
+    --font-display: 32px;
+    --font-title: 24px;
+    --section-gap: 72px;
+  }
+}

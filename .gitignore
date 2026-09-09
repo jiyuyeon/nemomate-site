@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.astro/
+.DS_Store
+# 배포 파일(DMG)은 100MB가 넘어 GitHub에 올릴 수 없다.
+# 릴리즈에 첨부해서 배포한다.
+public/downloads/*.dmg
+public/downloads/*.exe
