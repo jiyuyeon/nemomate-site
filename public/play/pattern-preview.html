@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>네모로그 패턴 미리보기</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #1a1a2e; color: #eee; font-family: 'Apple SD Gothic Neo', sans-serif; }
+h1 { text-align: center; padding: 20px; color: #e8b4f8; font-size: 24px; }
+.container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 20px; }
+.panel {
+  background: #16213e;
+  border-radius: 12px;
+  padding: 16px;
+  width: 420px;
+}
+.panel h2 { color: #a8d8ea; font-size: 16px; margin-bottom: 8px; }
+.panel p { color: #888; font-size: 12px; margin-bottom: 12px; line-height: 1.4; }
+canvas {
+  display: block;
+  background: linear-gradient(180deg, #2a1a4e 0%, #1a1a3e 100%);
+  border-radius: 8px;
+  border: 1px solid #333;
+}
+.controls {
+  display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap;
+}
+.controls button {
+  background: #3a2a6e; border: none; color: #ddd; padding: 6px 14px;
+  border-radius: 6px; cursor: pointer; font-size: 12px;
+}
+.controls button:hover { background: #5a3a9e; }
+.controls button.active { background: #7b4fd4; color: #fff; }
+.section-title {
+  width: 100%; text-align: center; color: #e8b4f8;
+  font-size: 18px; margin: 20px 0 0; padding-top: 10px;
+  border-top: 1px solid #333;
+}
+</style>
+</head>
+<body>
+<h1>네모로그 패턴 미리보기</h1>
+
+<div class="container">
+
+<!-- 다이빙 경로 미리보기 -->
+<div class="section-title">다이빙 경로 5종</div>
+
+<div class="panel">
+  <h2>1. 직선 돌진 (Straight)</h2>
+  <p>플레이어 방향으로 atan2 직선 이동. 1~10단계 기본.</p>
+  <canvas id="c-straight" width="400" height="280"></canvas>
+  <div class="controls"><button onclick="restartAnim('straight')">다시 재생</button></div>
+</div>
+
+<div class="panel">
+  <h2>2. S자 곡선 (S-Wave)</h2>
+  <p>좌우로 흔들리며 내려옴. sin파 amplitude 35px, 주기 0.8초. 3단계+</p>
+  <canvas id="c-swave" width="400" height="280"></canvas>
+  <div class="controls"><button onclick="restartAnim('swave')">다시 재생</button></div>
+</div>
+
+<div class="panel">
+  <h2>3. 루프 다이빙 (Loop)</h2>
+  <p>한 바퀴 원형 루프 후 직선 강하. 반경 40px. 5단계+</p>
+  <canvas id="c-loop" width="400" height="280"></canvas>
+  <div class="controls"><button onclick="restartAnim('loop')">다시 재생</button></div>
+</div>
+
+<div class="panel">
+  <h2>4. U턴 복귀 (U-Turn)</h2>
+  <p>하단까지 내려간 뒤 베지어 곡선으로 대열 복귀. 5단계+</p>
+  <canvas id="c-uturn" width="400" height="280"></canvas>
+  <div class="controls"><button onclick="restartAnim('uturn')">다시 재생</button></div>
+</div>
+
+<div class="panel">
+  <h2>5. 나선 강하 (Spiral)</h2>
+  <p>점점 좁아지는 나선으로 플레이어를 조여옴. 반경 80→20px. 7단계+</p>
+  <canvas id="c-spiral" width="400" height="280"></canvas>
+  <div class="controls"><button onclick="restartAnim('spiral')">다시 재생</button></div>
+</div>
+
+<!-- 보스 패턴 미리보기 -->
+<div class="section-title">보스 전용 패턴</div>
+
+<div class="panel">
+  <h2>6. 호위 돌진 (Escort Dive)</h2>
+  <p>보스(중앙 직선) + 호위 2마리(S자) 삼각 대형 동시 다이빙. 5단계+</p>
+  <canvas id="c-escort" width="400" height="280"></canvas>
+  <div class="controls"><button onclick="restartAnim('escort')">다시 재생</button></div>
+</div>
+
+<div class="panel">
+  <h2>7. 십자 발사 (Cross Fire)</h2>
+  <p>보스가 전진하며 상하좌우 4방향 총알 동시 발사 × 3회. 9단계+</p>
+  <canvas id="c-cross" width="400" height="280"></canvas>
+  <div class="controls"><button onclick="restartAnim('cross')">다시 재생</button></div>
+</div>
+
+<div class="panel">
+  <h2>8. 확산 탄막 (Spread Shot)</h2>
+  <p>부채꼴 5발 동시 발사 (30도 간격). 10단계</p>
+  <canvas id="c-spread" width="400" height="280"></canvas>
+  <div class="controls"><button onclick="restartAnim('spread')">다시 재생</button></div>
+</div>
+
+<div class="panel">
+  <h2>9. 분노 모드 (Enraged)</h2>
+  <p>보스 HP 50% 이하 시 빨간 글로우 + 속도 1.5배 + 발사간격 0.5배</p>
+  <canvas id="c-enraged" width="400" height="280"></canvas>
+  <div class="controls"><button onclick="restartAnim('enraged')">다시 재생</button></div>
+</div>
+
+<!-- 대열 이동 패턴 -->
+<div class="section-title">대열 이동 패턴</div>
+
+<div class="panel">
+  <h2>10. 대열 이동 4종</h2>
+  <p>직선(1-3) → 맥동(4-6) → 지그재그(7-8) → 가속감속(9-10)</p>
+  <canvas id="c-formation" width="400" height="280"></canvas>
+  <div class="controls">
+    <button class="active" onclick="setFormation('linear')">직선</button>
+    <button onclick="setFormation('pulse')">맥동</button>
+    <button onclick="setFormation('zigzag')">지그재그</button>
+    <button onclick="setFormation('accel')">가속감속</button>
+  </div>
+</div>
+
+<!-- 입장 패턴 -->
+<div class="panel">
+  <h2>11. 입장 패턴 5종</h2>
+  <p>직선(1-2) → V자(3-4) → 나선(5-6) → 교차(7-8) → 전방위(9-10)</p>
+  <canvas id="c-entry" width="400" height="280"></canvas>
+  <div class="controls">
+    <button class="active" onclick="setEntry('linear')">직선</button>
+    <button onclick="setEntry('vshape')">V자</button>
+    <button onclick="setEntry('spiral')">나선</button>
+    <button onclick="setEntry('cross')">교차</button>
+    <button onclick="setEntry('omni')">전방위</button>
+  </div>
+</div>
+
+<!-- 드래곤플라이트 참고 패턴 -->
+<div class="section-title">드래곤플라이트 참고 패턴 (미구현)</div>
+
+<div class="panel">
+  <h2>12. 원형 산탄 (Radial Burst)</h2>
+  <p>드플 기계공병 패턴. 원형으로 탄환이 퍼져나감. 2~4회 반복.</p>
+  <canvas id="c-radial" width="400" height="280"></canvas>
+  <div class="controls"><button onclick="restartAnim('radial')">다시 재생</button></div>
+</div>
+
+<div class="panel">
+  <h2>13. 보스 돌진 + 운석 (Charge + Meteor)</h2>
+  <p>드플 크래곤/메테오 패턴. 패턴 루프 마지막에 보스가 직접 돌진 + 운석 낙하.</p>
+  <canvas id="c-charge" width="400" height="280"></canvas>
+  <div class="controls"><button onclick="restartAnim('charge')">다시 재생</button></div>
+</div>
+
+<div class="panel">
+  <h2>14. 고속/저속 혼합 탄막 (Mixed Speed)</h2>
+  <p>드플 데몬드래곤 패턴. 빠른 탄과 느린 탄이 섞여서 회피 혼란.</p>
+  <canvas id="c-mixed" width="400" height="280"></canvas>
+  <div class="controls"><button onclick="restartAnim('mixed')">다시 재생</button></div>
+</div>
+
+</div>
+
+<script>
+const W = 400, H = 280;
+const anims = {};
+let formationType = 'linear';
+let entryType = 'linear';
+
+function getCtx(id) { return document.getElementById(id).getContext('2d'); }
+
+function drawBg(ctx) {
+  ctx.fillStyle = '#1a1a3e';
+  ctx.fillRect(0, 0, W, H);
+  // 별
+  for (let i = 0; i < 30; i++) {
+    ctx.fillStyle = `rgba(255,255,255,${Math.random()*0.3+0.1})`;
+    ctx.fillRect(Math.random()*W, Math.random()*H, 1, 1);
+  }
+}
+
+function drawNemo(ctx, x) {
+  ctx.fillStyle = '#f8d878';
+  ctx.fillRect(x - 12, H - 40, 24, 24);
+  ctx.fillStyle = '#e8a838';
+  ctx.fillRect(x - 8, H - 36, 16, 16);
+  ctx.font = '10px sans-serif';
+  ctx.fillStyle = '#fff';
+  ctx.fillText('네모', x - 12, H - 18);
+}
+
+function drawEnemy(ctx, x, y, size, color, label) {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.arc(x, y, size, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#5C4033';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  if (label) {
+    ctx.font = `${size * 1.2}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(label, x, y);
+  }
+}
+
+function drawBullet(ctx, x, y, color, size) {
+  ctx.fillStyle = color || '#ff4444';
+  ctx.beginPath();
+  ctx.arc(x, y, size || 3, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawTrail(ctx, points, color) {
+  if (points.length < 2) return;
+  ctx.strokeStyle = color || 'rgba(255,200,100,0.3)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, points[0].y);
+  for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
+  ctx.stroke();
+}
+
+// ── 다이빙 경로 애니메이션 ──
+function animDive(type) {
+  const ctx = getCtx('c-' + type);
+  let t = 0;
+  const trail = [];
+  const nemoX = 200;
+  const startX = 200, startY = 40;
+  const angle = Math.atan2(H - 40 - startY, nemoX - startX);
+
+  function frame() {
+    drawBg(ctx);
+    drawNemo(ctx, nemoX);
+
+    // 대열 표시 (반투명)
+    for (let i = 0; i < 6; i++) {
+      ctx.globalAlpha = 0.2;
+      drawEnemy(ctx, 80 + i * 50, 40, 10, '#888');
+      ctx.globalAlpha = 1;
+    }
+
+    let x, y;
+    const elapsed = t / 60;
+
+    switch (type) {
+      case 'straight':
+        x = startX + Math.cos(angle) * 5 * elapsed * 30;
+        y = startY + Math.sin(angle) * 5 * elapsed * 30;
+        break;
+      case 'swave':
+        x = startX + Math.cos(angle) * 4 * elapsed * 25 + Math.sin(elapsed * Math.PI * 2 / 0.8) * 35 * (-Math.sin(angle));
+        y = startY + Math.sin(angle) * 4 * elapsed * 25;
+        break;
+      case 'loop': {
+        const loopR = 40, loopD = 0.6;
+        if (elapsed < loopD) {
+          const a = (elapsed / loopD) * Math.PI * 2;
+          x = startX + Math.sin(a) * loopR;
+          y = startY - loopR + Math.cos(a) * loopR;
+        } else {
+          const post = elapsed - loopD;
+          x = startX + Math.cos(angle) * 5 * post * 35;
+          y = startY + Math.sin(angle) * 5 * post * 35;
+        }
+        break;
+      }
+      case 'uturn': {
+        if (elapsed < 1.5) {
+          x = startX + Math.cos(angle) * 4 * elapsed * 30;
+          y = startY + Math.sin(angle) * 4 * elapsed * 30;
+        } else {
+          // 베지어 복귀
+          const p = Math.min((elapsed - 1.5) / 1.5, 1);
+          const sx = startX + Math.cos(angle) * 4 * 1.5 * 30;
+          const sy = startY + Math.sin(angle) * 4 * 1.5 * 30;
+          const cp1x = sx + 80, cp1y = H + 30;
+          const cp2x = startX, cp2y = startY - 40;
+          const mt = 1 - p;
+          x = mt*mt*mt*sx + 3*mt*mt*p*cp1x + 3*mt*p*p*cp2x + p*p*p*startX;
+          y = mt*mt*mt*sy + 3*mt*mt*p*cp1y + 3*mt*p*p*cp2y + p*p*p*startY;
+        }
+        break;
+      }
+      case 'spiral': {
+        const maxR = 80, minR = 20;
+        const progress = Math.min(elapsed * 0.5, 1);
+        const radius = maxR - (maxR - minR) * progress;
+        const a = elapsed * Math.PI * 3;
+        const cx = (startX + nemoX) / 2 + (nemoX - (startX + nemoX) / 2) * progress;
+        const cy = (startY + (H - 40)) / 2 + ((H - 40) - (startY + (H - 40)) / 2) * progress;
+        x = cx + Math.cos(a) * radius;
+        y = cy + Math.sin(a) * radius;
+        break;
+      }
+    }
+
+    if (x !== undefined && y !== undefined && y < H + 40 && y > -40) {
+      trail.push({ x, y });
+      drawTrail(ctx, trail, 'rgba(255,100,100,0.4)');
+      drawEnemy(ctx, x, y, 12, '#e74c3c', '☄️');
+    }
+
+    t++;
+    if (t < 200 && anims[type]) requestAnimationFrame(frame);
+  }
+
+  anims[type] = true;
+  t = 0;
+  trail.length = 0;
+  frame();
+}
+
+// ── 보스 패턴 애니메이션 ──
+function animEscort() {
+  const ctx = getCtx('c-escort');
+  let t = 0;
+  const nemoX = 200;
+  const bossStart = { x: 200, y: 50 };
+  const esc1Start = { x: 150, y: 50 };
+  const esc2Start = { x: 250, y: 50 };
+  const angle = Math.PI / 2;
+
+  function frame() {
+    drawBg(ctx);
+    drawNemo(ctx, nemoX);
+    const elapsed = t / 60;
+
+    // 보스: 직선
+    const bx = bossStart.x;
+    const by = bossStart.y + elapsed * 120;
+    // 호위: S자
+    const e1x = esc1Start.x + Math.sin(elapsed * Math.PI * 2 / 0.8) * 30;
+    const e1y = esc1Start.y + elapsed * 110;
+    const e2x = esc2Start.x - Math.sin(elapsed * Math.PI * 2 / 0.8) * 30;
+    const e2y = esc2Start.y + elapsed * 110;
+
+    if (by < H + 20) {
+      drawEnemy(ctx, e1x, e1y, 10, '#e67e22', '☄️');
+      drawEnemy(ctx, e2x, e2y, 10, '#e67e22', '☄️');
+      drawEnemy(ctx, bx, by, 18, '#8e44ad', '🕳️');
+      // 삼각형 가이드
+      ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+      ctx.beginPath();
+      ctx.moveTo(bx, by); ctx.lineTo(e1x, e1y); ctx.lineTo(e2x, e2y); ctx.closePath();
+      ctx.stroke();
+    }
+
+    t++;
+    if (t < 150 && anims['escort']) requestAnimationFrame(frame);
+  }
+  anims['escort'] = true; t = 0; frame();
+}
+
+function animCross() {
+  const ctx = getCtx('c-cross');
+  let t = 0;
+  const bullets = [];
+  const bossY = 50;
+  let fireCount = 0;
+
+  function frame() {
+    drawBg(ctx);
+    drawNemo(ctx, 200);
+    const elapsed = t / 60;
+
+    // 보스 전진
+    const by = bossY + elapsed * 20;
+    drawEnemy(ctx, 200, by, 18, '#8e44ad', '🕳️');
+
+    // 0.8초마다 십자 발사
+    if (t % 48 === 0 && fireCount < 3) {
+      fireCount++;
+      const dirs = [[0, -3], [0, 3], [-3, 0], [3, 0]];
+      for (const [dx, dy] of dirs) {
+        bullets.push({ x: 200, y: by, vx: dx, vy: dy });
+      }
+    }
+
+    for (const b of bullets) {
+      b.x += b.vx; b.y += b.vy;
+      drawBullet(ctx, b.x, b.y, '#ff6666', 4);
+    }
+
+    t++;
+    if (t < 180 && anims['cross']) requestAnimationFrame(frame);
+  }
+  anims['cross'] = true; t = 0; frame();
+}
+
+function animSpread() {
+  const ctx = getCtx('c-spread');
+  let t = 0;
+  const bullets = [];
+  let fired = false;
+
+  function frame() {
+    drawBg(ctx);
+    drawNemo(ctx, 200);
+    drawEnemy(ctx, 200, 60, 18, '#8e44ad', '🕳️');
+
+    if (t === 40 && !fired) {
+      fired = true;
+      for (let i = -2; i <= 2; i++) {
+        const angle = Math.PI / 2 + (i * Math.PI / 6);
+        bullets.push({ x: 200, y: 78, vx: Math.cos(angle) * 2.5, vy: Math.sin(angle) * 2.5 });
+      }
+    }
+    if (t === 100) {
+      for (let i = -2; i <= 2; i++) {
+        const angle = Math.PI / 2 + (i * Math.PI / 6);
+        bullets.push({ x: 200, y: 78, vx: Math.cos(angle) * 2.5, vy: Math.sin(angle) * 2.5 });
+      }
+    }
+
+    for (const b of bullets) {
+      b.x += b.vx; b.y += b.vy;
+      drawBullet(ctx, b.x, b.y, '#ff4488', 3);
+    }
+
+    // 부채꼴 가이드라인
+    if (t < 40) {
+      ctx.strokeStyle = 'rgba(255,68,136,0.2)';
+      for (let i = -2; i <= 2; i++) {
+        const angle = Math.PI / 2 + (i * Math.PI / 6);
+        ctx.beginPath();
+        ctx.moveTo(200, 78);
+        ctx.lineTo(200 + Math.cos(angle) * 120, 78 + Math.sin(angle) * 120);
+        ctx.stroke();
+      }
+    }
+
+    t++;
+    if (t < 180 && anims['spread']) requestAnimationFrame(frame);
+  }
+  anims['spread'] = true; t = 0; frame();
+}
+
+function animEnraged() {
+  const ctx = getCtx('c-enraged');
+  let t = 0;
+  const bullets = [];
+
+  function frame() {
+    drawBg(ctx);
+    drawNemo(ctx, 200);
+
+    const glowSize = 18 + Math.sin(t / 5) * 3;
+    // 빨간 글로우
+    ctx.shadowColor = '#ff0000';
+    ctx.shadowBlur = 15 + Math.sin(t / 5) * 5;
+    drawEnemy(ctx, 200, 60, glowSize, '#c0392b', '🕳️');
+    ctx.shadowBlur = 0;
+
+    // HP바
+    ctx.fillStyle = '#333';
+    ctx.fillRect(170, 82, 60, 6);
+    ctx.fillStyle = '#e74c3c';
+    ctx.fillRect(170, 82, 30, 6); // 50%
+
+    // 빠른 발사 (0.5배 간격)
+    if (t % 20 === 0) {
+      const angle = Math.atan2(H - 40 - 60, 200 + Math.sin(t/10)*30 - 200);
+      bullets.push({ x: 200, y: 78, vx: Math.cos(angle) * 3, vy: Math.sin(angle) * 3 });
+    }
+
+    for (const b of bullets) {
+      b.x += b.vx; b.y += b.vy;
+      drawBullet(ctx, b.x, b.y, '#ff2222', 4);
+    }
+
+    ctx.fillStyle = '#ff4444';
+    ctx.font = '11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('ENRAGED!', 200, 100);
+
+    t++;
+    if (t < 200 && anims['enraged']) requestAnimationFrame(frame);
+  }
+  anims['enraged'] = true; t = 0; frame();
+}
+
+// ── 대열 이동 패턴 ──
+function animFormation() {
+  const ctx = getCtx('c-formation');
+  let t = 0;
+  const enemies = [];
+  for (let i = 0; i < 12; i++) {
+    enemies.push({ baseX: 80 + (i % 6) * 50, baseY: 30 + Math.floor(i / 6) * 35, x: 0, y: 0 });
+  }
+
+  function frame() {
+    drawBg(ctx);
+    drawNemo(ctx, 200);
+    const elapsed = t / 60;
+    let dx = Math.sin(elapsed * 1.5) * 60;
+
+    for (const e of enemies) {
+      let x = e.baseX + dx;
+      let y = e.baseY;
+      const colIdx = enemies.indexOf(e) % 6;
+      const centerCol = 2.5;
+
+      switch (formationType) {
+        case 'pulse': {
+          const pulseOffset = Math.sin(elapsed * Math.PI * 2 / 3) * 5;
+          x += (colIdx - centerCol) * pulseOffset * 0.3;
+          break;
+        }
+        case 'zigzag':
+          y += Math.sin(elapsed * 2) * 5;
+          break;
+        case 'accel':
+          dx = Math.sin(elapsed * 1.5) * 60 * (0.5 + Math.abs(Math.sin(elapsed * 0.8)));
+          x = e.baseX + dx;
+          break;
+      }
+
+      e.x = x; e.y = y;
+      drawEnemy(ctx, x, y, 10, '#e67e22', '☄️');
+    }
+
+    // 라벨
+    ctx.fillStyle = '#a8d8ea';
+    ctx.font = '11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(formationType.toUpperCase(), 200, H - 8);
+
+    t++;
+    if (anims['formation']) requestAnimationFrame(frame);
+  }
+  anims['formation'] = true; t = 0; frame();
+}
+
+// ── 입장 패턴 ──
+function animEntry() {
+  const ctx = getCtx('c-entry');
+  let t = 0;
+  const enemies = [];
+  const N = 10;
+  for (let i = 0; i < N; i++) {
+    const homeX = 80 + (i % 6) * 50;
+    const homeY = 30 + Math.floor(i / 6) * 35;
+    let sx, sy;
+    switch (entryType) {
+      case 'linear':
+        sx = homeX + (i % 2 === 0 ? -120 : 120);
+        sy = -20 - i * 10;
+        break;
+      case 'vshape':
+        sx = i % 2 === 0 ? -30 : W + 30;
+        sy = -20 - Math.abs(i - N / 2) * 8;
+        break;
+      case 'spiral': {
+        const a = (i / N) * Math.PI * 2;
+        sx = W / 2 + Math.cos(a) * (120 + i * 5);
+        sy = -30 - Math.sin(a) * 40;
+        break;
+      }
+      case 'cross':
+        sx = i % 2 === 0 ? -40 - i * 5 : W + 40 + i * 5;
+        sy = -10 - i * 12;
+        break;
+      case 'omni': {
+        const dir = i % 3;
+        if (dir === 0) { sx = homeX; sy = -30 - i * 8; }
+        else if (dir === 1) { sx = -30 - i * 5; sy = homeY; }
+        else { sx = W + 30 + i * 5; sy = homeY; }
+        break;
+      }
+    }
+    enemies.push({ sx, sy, homeX, homeY, x: sx, y: sy, delay: i * 80, arrived: false });
+  }
+
+  function frame() {
+    drawBg(ctx);
+    const elapsed = t * 33;
+
+    for (const e of enemies) {
+      if (elapsed < e.delay) continue;
+      if (e.arrived) {
+        drawEnemy(ctx, e.homeX, e.homeY, 10, '#e67e22', '☄️');
+        continue;
+      }
+      const dx = e.homeX - e.x, dy = e.homeY - e.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 6) {
+        e.x = e.homeX; e.y = e.homeY; e.arrived = true;
+      } else {
+        e.x += (dx / dist) * 6;
+        e.y += (dy / dist) * 6;
+      }
+      drawEnemy(ctx, e.x, e.y, 10, '#3498db', '☄️');
+    }
+
+    ctx.fillStyle = '#a8d8ea';
+    ctx.font = '11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(entryType.toUpperCase(), 200, H - 8);
+
+    t++;
+    if (t < 200 && anims['entry']) requestAnimationFrame(frame);
+  }
+  anims['entry'] = true; t = 0; frame();
+}
+
+// ── 드래곤플라이트 참고 패턴 ──
+function animRadial() {
+  const ctx = getCtx('c-radial');
+  let t = 0;
+  const bullets = [];
+  let burstCount = 0;
+
+  function frame() {
+    drawBg(ctx);
+    drawNemo(ctx, 200);
+    drawEnemy(ctx, 200, 60, 18, '#8e44ad', '🕳️');
+
+    if (t % 50 === 0 && burstCount < 3) {
+      burstCount++;
+      const count = 12;
+      for (let i = 0; i < count; i++) {
+        const angle = (i / count) * Math.PI * 2;
+        bullets.push({ x: 200, y: 60, vx: Math.cos(angle) * 2, vy: Math.sin(angle) * 2 });
+      }
+    }
+
+    for (const b of bullets) {
+      b.x += b.vx; b.y += b.vy;
+      drawBullet(ctx, b.x, b.y, '#ff8844', 3);
+    }
+
+    t++;
+    if (t < 200 && anims['radial']) requestAnimationFrame(frame);
+  }
+  anims['radial'] = true; t = 0; frame();
+}
+
+function animCharge() {
+  const ctx = getCtx('c-charge');
+  let t = 0;
+  const meteors = [];
+
+  function frame() {
+    drawBg(ctx);
+    drawNemo(ctx, 200);
+
+    const elapsed = t / 60;
+    let by = 60;
+
+    if (elapsed > 2) {
+      // 돌진
+      by = 60 + (elapsed - 2) * 200;
+      ctx.fillStyle = '#ff4444';
+      ctx.font = '12px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('돌진!', 200, by - 25);
+    }
+
+    // 운석 낙하
+    if (t % 30 === 0 && elapsed < 2) {
+      meteors.push({ x: Math.random() * 300 + 50, y: -10, vy: 3 + Math.random() * 2 });
+    }
+    for (let i = meteors.length - 1; i >= 0; i--) {
+      meteors[i].y += meteors[i].vy;
+      ctx.fillStyle = '#ff6644';
+      ctx.font = '16px sans-serif';
+      ctx.fillText('🌑', meteors[i].x - 8, meteors[i].y);
+      if (meteors[i].y > H + 10) meteors.splice(i, 1);
+    }
+
+    if (by < H + 30) {
+      drawEnemy(ctx, 200, by, 18, '#8e44ad', '🕳️');
+    }
+
+    // 경고
+    if (elapsed > 1.5 && elapsed < 2) {
+      ctx.fillStyle = `rgba(255,0,0,${Math.sin(t/3)*0.3+0.3})`;
+      ctx.font = 'bold 14px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('⚠ WARNING ⚠', 200, H / 2);
+    }
+
+    t++;
+    if (t < 200 && anims['charge']) requestAnimationFrame(frame);
+  }
+  anims['charge'] = true; t = 0; frame();
+}
+
+function animMixed() {
+  const ctx = getCtx('c-mixed');
+  let t = 0;
+  const bullets = [];
+
+  function frame() {
+    drawBg(ctx);
+    drawNemo(ctx, 200);
+    drawEnemy(ctx, 200, 60, 18, '#8e44ad', '🕳️');
+
+    if (t % 15 === 0) {
+      const isFast = Math.random() > 0.5;
+      const speed = isFast ? 4 : 1.5;
+      const angle = Math.PI / 2 + (Math.random() - 0.5) * 1.2;
+      bullets.push({
+        x: 200 + (Math.random() - 0.5) * 20,
+        y: 78,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        fast: isFast
+      });
+    }
+
+    for (const b of bullets) {
+      b.x += b.vx; b.y += b.vy;
+      drawBullet(ctx, b.x, b.y, b.fast ? '#ff2222' : '#ffaa44', b.fast ? 3 : 5);
+    }
+
+    ctx.fillStyle = '#888';
+    ctx.font = '10px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('빨간=고속  주황=저속', 10, H - 8);
+
+    t++;
+    if (t < 200 && anims['mixed']) requestAnimationFrame(frame);
+  }
+  anims['mixed'] = true; t = 0; frame();
+}
+
+// ── 컨트롤 ──
+function restartAnim(type) {
+  anims[type] = false;
+  setTimeout(() => {
+    switch (type) {
+      case 'straight': case 'swave': case 'loop': case 'uturn': case 'spiral':
+        animDive(type); break;
+      case 'escort': animEscort(); break;
+      case 'cross': animCross(); break;
+      case 'spread': animSpread(); break;
+      case 'enraged': animEnraged(); break;
+      case 'formation': animFormation(); break;
+      case 'entry': animEntry(); break;
+      case 'radial': animRadial(); break;
+      case 'charge': animCharge(); break;
+      case 'mixed': animMixed(); break;
+    }
+  }, 50);
+}
+
+function setFormation(type) {
+  formationType = type;
+  document.querySelectorAll('#c-formation ~ .controls button').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  restartAnim('formation');
+}
+
+function setEntry(type) {
+  entryType = type;
+  document.querySelectorAll('#c-entry ~ .controls button').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  restartAnim('entry');
+}
+
+// 초기 실행
+['straight', 'swave', 'loop', 'uturn', 'spiral'].forEach(t => animDive(t));
+animEscort();
+animCross();
+animSpread();
+animEnraged();
+animFormation();
+animEntry();
+animRadial();
+animCharge();
+animMixed();
+</script>
+</body>
+</html>

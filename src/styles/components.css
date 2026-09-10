@@ -274,3 +274,15 @@
   font-size: var(--font-body);
   line-height: 1.6;
 }
+
+/* 다운로드 섹션 — 웹에서 먼저 해보기 안내 */
+.download-webplay {
+  margin-top: 8px;
+  font-size: var(--font-label);
+  color: var(--text-secondary);
+}
+
+.download-webplay a {
+  color: var(--accent);
+  font-weight: var(--weight-bold);
+}
