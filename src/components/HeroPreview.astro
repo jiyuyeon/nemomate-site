@@ -65,6 +65,8 @@ const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
 </style>
 
 <script>
+  // 브라우저에서 도는 코드라 프론트매터 변수를 못 쓴다. 여기서 다시 만든다.
+  const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
   async function initPreview() {
     const container = document.getElementById('preview-canvas');
     const hint = document.getElementById('preview-hint');
