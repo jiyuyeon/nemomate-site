@@ -89,6 +89,12 @@ const screenshots = [
 
   @media (max-width: 767px) {
     .gallery-wrapper { padding: 0 var(--pad-mobile); }
+    /* 300px 고정 카드는 320px 폰(안쪽 288px)보다 커서 화면 폭에 맞춰 줄인다 */
+    .gallery-item {
+      width: min(300px, calc(100vw - 32px));
+      height: auto;
+      aspect-ratio: 1;
+    }
   }
 
   @media (min-width: 768px) and (max-width: 1023px) {

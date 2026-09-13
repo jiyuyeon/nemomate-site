@@ -30,7 +30,10 @@ const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
     height: 100%;
   }
 
-  .preview-canvas canvas {
+  /* PixiJS가 실행 중에 끼워 넣는 <canvas>에는 Astro의 범위 지정 속성이 안 붙는다.
+     :global 없이 쓰면 이 규칙이 한 번도 적용되지 않아 480px짜리 캔버스가 그대로 놓이고,
+     폰에서는 320px 상자에 잘려 방의 왼쪽 위 귀퉁이만 보였다. */
+  .preview-canvas :global(canvas) {
     width: 100% !important;
     height: 100% !important;
     display: block;
@@ -80,8 +83,16 @@ const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
       height: 440,
       backgroundAlpha: 0,
       antialias: true,
+      // 폰은 화면 픽셀이 촘촘해서, 480px로만 그리면 축소돼도 흐릿하다. 기기 배율만큼 크게 그린다
+      resolution: Math.min(window.devicePixelRatio || 1, 2),
+      autoDensity: true,
     });
     container.appendChild(app.canvas);
+    // 스타일은 여기서 직접 박는다(위 CSS와 이중 안전장치). 손가락 세로 스와이프는 페이지 스크롤로 넘긴다
+    app.canvas.style.width = "100%";
+    app.canvas.style.height = "100%";
+    app.canvas.style.display = "block";
+    app.canvas.style.touchAction = "pan-y";
 
     // --- 방 배경 ---
     const roomTex = await PIXI.Assets.load(`${BASE}/sprites/room_lv4.png`);

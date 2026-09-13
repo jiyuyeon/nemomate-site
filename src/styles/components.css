@@ -228,40 +228,6 @@
   display: inline-block;
 }
 
-/* --- 갤러리 캐러셀 --- */
-.gallery-track {
-  display: flex;
-  gap: 20px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  padding: var(--gap-group) 0;
-}
-
-.gallery-item {
-  flex: 0 0 auto;
-  width: 280px;
-  aspect-ratio: 9/16;
-  border-radius: 18px;
-  border: 2px solid var(--border);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
-  scroll-snap-align: center;
-  transition: transform var(--dur-smooth) var(--ease-smooth),
-              box-shadow var(--dur-smooth) var(--ease-smooth);
-}
-
-.gallery-item:hover {
-  transform: scale(1.04);
-  box-shadow: var(--shadow-lg);
-}
-
-.gallery-track::-webkit-scrollbar { height: 4px; }
-.gallery-track::-webkit-scrollbar-thumb {
-  background: var(--brown-300);
-  border-radius: 2px;
-}
-
 /* --- 모바일 안내 --- */
 .mobile-notice {
   display: none;
