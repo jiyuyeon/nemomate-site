@@ -22,10 +22,10 @@ const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a9.96 9.96 0 0 1 6.29 2.23A10 10 0 0 1 12 22 10 10 0 0 1 5.71 4.23 9.96 9.96 0 0 1 12 2z"/></svg>
           macOS 다운로드 (.dmg)
         </a>
-        <span class="btn btn-press btn-md btn-win btn-disabled" aria-disabled="true">
+        <a href="https://github.com/jiyuyeon/nemomate-site/releases/download/v0.1.5/NemoMate_0.1.5_x64-setup.exe" class="btn btn-press btn-md btn-win">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="8"/><rect x="3" y="13" width="8" height="8"/><rect x="13" y="13" width="8" height="8"/></svg>
-          Windows 준비 중
-        </span>
+          Windows 다운로드 (.exe)
+        </a>
       </div>
 
       <div class="mobile-notice" id="mobile-notice">
@@ -34,11 +34,12 @@ const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
 
       <div class="download-meta">
         <span class="version">얼리 액세스 v0.1.5 · 2026.09</span>
-        <span class="requirements">macOS 12+ · 애플 실리콘(M1 이상) · 300MB 이상 여유 공간</span>
+        <span class="requirements">macOS 12+ · 애플 실리콘(M1 이상) / Windows 10+ · 64비트 / 300MB 이상 여유 공간</span>
+        <span class="requirements">Windows 버전은 이제 막 나와서 아직 다듬는 중이에요. 산책·배경화면 모드가 맥과 조금 다를 수 있어요.</span>
       </div>
 
-      <div class="install-guide">
-        <div class="install-guide-title">설치하는 법</div>
+      <div class="install-guide" id="guide-mac">
+        <div class="install-guide-title">설치하는 법 (macOS)</div>
         <p class="install-guide-lead">
           아직 애플 인증을 받지 않아서, <b>처음 한 번만</b> 아래 단계가 필요해요.
           다음부터는 그냥 열려요!
@@ -57,6 +58,26 @@ const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
             <span class="install-step-hint">"네모메이트은(는) 확인되지 않은 개발자..." 문구 옆에 있어요</span>
           </li>
           <li>네모메이트를 <b>다시 실행</b>하면 끝!</li>
+        </ol>
+      </div>
+
+      <div class="install-guide" id="guide-win">
+        <div class="install-guide-title">설치하는 법 (Windows)</div>
+        <p class="install-guide-lead">
+          아직 마이크로소프트 서명을 받지 않아서, <b>처음 한 번만</b> 아래 단계가 필요해요.
+          다음부터는 시작 메뉴에서 그냥 열려요!
+        </p>
+        <ol class="install-steps">
+          <li>
+            받은 <b>NemoMate_0.1.5_x64-setup.exe</b>를 두 번 눌러 실행해요
+            <span class="install-step-hint">브라우저가 "일반적으로 다운로드되지 않는 파일"이라고 하면 <b>유지</b>를 눌러요</span>
+          </li>
+          <li>
+            파란 <b>"Windows의 PC 보호"</b> 창이 뜨면 <b>추가 정보</b>를 눌러요
+            <span class="install-step-hint">여기서 포기하지 마세요! 실행 버튼이 숨어 있어요</span>
+          </li>
+          <li>아래에 나타난 <b>실행</b> 버튼을 눌러요</li>
+          <li>설치 안내를 따라 마치면 끝!</li>
         </ol>
       </div>
 
@@ -241,9 +262,12 @@ const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
 </style>
 
 <script>
-  // 지금 받을 수 있는 건 macOS뿐이라 macOS 버튼만 강조한다.
-  // (예전엔 윈도우 사용자에게 윈도우 버튼을 강조했는데, 아직 윈도우 빌드가 없다)
-  document.querySelector('.btn-mac')?.classList.add('btn-primary-os');
+  // 지금 쓰는 운영체제의 버튼을 강조하고, 그 운영체제의 설치 안내를 먼저 보여준다
+  const isWin = /Windows/i.test(navigator.userAgent);
+  document.querySelector(isWin ? '.btn-win' : '.btn-mac')?.classList.add('btn-primary-os');
+  const guideMac = document.getElementById('guide-mac');
+  const guideWin = document.getElementById('guide-win');
+  if (isWin && guideMac && guideWin) guideWin.parentNode?.insertBefore(guideWin, guideMac);
 
   // 모바일 감지
   const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);

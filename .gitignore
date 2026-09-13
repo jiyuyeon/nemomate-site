@@ -6,3 +6,6 @@ dist/
 # 릴리즈에 첨부해서 배포한다.
 public/downloads/*.dmg
 public/downloads/*.exe
+
+# 개발 도구 상태 파일
+.omc/
